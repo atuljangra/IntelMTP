@@ -21,10 +21,13 @@ import android.widget.TextView;
 public class MainActivity extends ActionBarActivity {
 
 	private  NetworkController networkController;
+	private Thread networkThread;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		networkController = new NetworkController(this.getApplicationContext());
+		networkThread = new Thread(networkController);
+		networkThread.start();
 		setContentView(R.layout.activity_main);
 	}
 
