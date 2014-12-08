@@ -78,8 +78,11 @@ public class MainActivity extends ActionBarActivity {
 		String password = networkController.autoGPManager.getPassphrase();
 		if(password == ""){
 			//group not formed;
-		}
-			
+		}		
+	}
+	
+	public void join(View view){
+		networkController.joinAP();
 	}
 
 

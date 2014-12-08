@@ -1,8 +1,14 @@
 package com.example.p2pinternetsharing.connectivity;
 
+import java.util.List;
+
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.IntentFilter;
 import android.net.wifi.WifiManager;
+import android.net.wifi.WpsInfo;
+import android.net.wifi.p2p.WifiP2pConfig;
+import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pGroup;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.net.wifi.p2p.WifiP2pManager.ActionListener;
@@ -28,6 +34,8 @@ public class NetworkController implements Runnable{
 	
 	
 	public AutonomousGroupManager autoGPManager;
+	
+	private Boolean join = false;
 	
 	//public Thread accessPointsLocator;
 	
@@ -63,6 +71,8 @@ public class NetworkController implements Runnable{
 
 	
 	public void onResume() {
+		if(join)
+			return;
 		
         receiver = new WifiBroadcastReceiver(mManager, wifiManager, mChannel);
         activityContext.registerReceiver(receiver, intentFilter);
@@ -70,6 +80,8 @@ public class NetworkController implements Runnable{
 	}
 	
 	public void onPause() {
+		if(join)
+			return;
         activityContext.unregisterReceiver(receiver);
 	}
 
@@ -102,6 +114,10 @@ public class NetworkController implements Runnable{
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+			if(join){
+				activityContext.unregisterReceiver(receiver);
+				break;
+			}
 		}
 		
 		//accessPointsLocator = new Thread(new LocateAccessPoint(mManager, mChannel, activityContext));
@@ -109,6 +125,33 @@ public class NetworkController implements Runnable{
 		
 	}
 
+	public void joinAP(){
+		
+		List<WifiP2pDevice> validAP2pDevices = WifiBroadcastReceiver.validAP;
+		if(validAP2pDevices == null || validAP2pDevices.size() == 0)
+			return;
+		join = true;
+		 WifiP2pConfig config = new WifiP2pConfig();
+         config.deviceAddress = validAP2pDevices.get(0).deviceAddress;
+         config.wps.setup = WpsInfo.PBC;
+		mManager.connect(mChannel, config, new ActionListener() {
+
+			@Override
+            public void onSuccess() {
+            	Log.d("joining", "success");
+            }
+			
+            @Override
+            public void onFailure(int reason) {
+            	Log.d("creation", "failiure");
+             	if(reason == 2){
+                	Log.d("error","busy");
+             	}
+            }
+
+        });
+			
+	}
 	/*	
 	public static void startGp() {
 	
