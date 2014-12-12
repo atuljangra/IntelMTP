@@ -3,32 +3,38 @@ package com.example.p2pinternetsharing;
 
 import java.net.UnknownHostException;
 
-import com.example.p2pinternetsharing.connectivity.NetworkController;
-
-
-import android.support.v7.app.ActionBarActivity;
-import android.net.wifi.p2p.WifiP2pGroup;
-import android.net.wifi.p2p.WifiP2pManager.ActionListener;
-import android.net.wifi.p2p.WifiP2pManager.GroupInfoListener;
+import android.app.Activity;
+import android.net.wifi.p2p.WifiP2pDevice;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ProgressBar;
-import android.widget.TextView;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 
-public class MainActivity extends ActionBarActivity {
+import com.example.p2pinternetsharing.connectivity.NetworkController;
+import com.example.p2pinternetsharing.connectivity.WifiBroadcastReceiver;
+
+public class MainActivity extends Activity {
 
 	private  NetworkController networkController;
 	private Thread networkThread;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		networkController = new NetworkController(this.getApplicationContext());
+		setContentView(R.layout.activity_main);
+
+        final ListView listview = (ListView)findViewById(R.id.list);
+        // Setting the adapter.        
+        final ArrayAdapter<WifiP2pDevice> adapter = new ArrayAdapter<WifiP2pDevice>(getApplicationContext(), 
+        		R.layout.list, WifiBroadcastReceiver.validAP);
+        listview.setAdapter(adapter);
+		
+        WifiBroadcastReceiver.adapter = adapter;
+		
+        networkController = new NetworkController(this.getApplicationContext(),this);
 		networkThread = new Thread(networkController);
 		networkThread.start();
-		setContentView(R.layout.activity_main);
 	}
 
 	@Override

@@ -8,9 +8,6 @@ import android.net.wifi.p2p.WifiP2pManager.ActionListener;
 import android.net.wifi.p2p.WifiP2pManager.Channel;
 import android.net.wifi.p2p.WifiP2pManager.GroupInfoListener;
 import android.util.Log;
-import android.view.View;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 
 public class AutonomousGroupManager implements Runnable {
 	private static final String DEBUG_TAG = "MAIN_AADHA_DEBUGGING_AND_SHIT";

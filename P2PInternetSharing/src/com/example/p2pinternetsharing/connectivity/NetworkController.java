@@ -2,22 +2,21 @@ package com.example.p2pinternetsharing.connectivity;
 
 import java.util.List;
 
-import android.content.BroadcastReceiver;
+import android.app.Activity;
 import android.content.Context;
 import android.content.IntentFilter;
 import android.net.wifi.WifiManager;
 import android.net.wifi.WpsInfo;
 import android.net.wifi.p2p.WifiP2pConfig;
 import android.net.wifi.p2p.WifiP2pDevice;
-import android.net.wifi.p2p.WifiP2pGroup;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.net.wifi.p2p.WifiP2pManager.ActionListener;
 import android.net.wifi.p2p.WifiP2pManager.Channel;
-import android.net.wifi.p2p.WifiP2pManager.GroupInfoListener;
 import android.util.Log;
 
 
 public class NetworkController implements Runnable{
+	@SuppressWarnings("unused")
 	private static final String DEBUG_TAG = "MAIN_AADHA_DEBUGGING_AND_SHIT";
 
 	private final IntentFilter intentFilter = new IntentFilter();
@@ -37,6 +36,8 @@ public class NetworkController implements Runnable{
 	
 	private Boolean join = false;
 	
+	private Activity activity;
+	
 	//public Thread accessPointsLocator;
 	
 	//public WifiScanner wifiScanner;
@@ -44,9 +45,10 @@ public class NetworkController implements Runnable{
 	//public WifiDirectScanner wifiDirectScanner;
 	
 	
-	public NetworkController(Context activityContext){
+	public NetworkController(Context activityContext, Activity activity){
 		
 		this.activityContext = activityContext;
+		this.activity = activity;
 		// TODO Auto-generated method stub
 		intentFilter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION);
 
@@ -74,7 +76,7 @@ public class NetworkController implements Runnable{
 		if(join)
 			return;
 		
-        receiver = new WifiBroadcastReceiver(mManager, wifiManager, mChannel);
+        receiver = new WifiBroadcastReceiver(mManager, wifiManager, mChannel, activity);
         activityContext.registerReceiver(receiver, intentFilter);
         
 	}

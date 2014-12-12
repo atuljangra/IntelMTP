@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -17,26 +18,32 @@ import android.net.wifi.p2p.WifiP2pManager;
 import android.net.wifi.p2p.WifiP2pManager.Channel;
 import android.net.wifi.p2p.WifiP2pManager.PeerListListener;
 import android.util.Log;
+import android.widget.ArrayAdapter;
 
 public class WifiBroadcastReceiver extends BroadcastReceiver implements PeerListListener{
 
 	private WifiP2pManager p2pManager;
 	private WifiManager wifiManager;
     private Channel channel;
+    
+    // Needed to make changes in the UI.
+    private Activity activity;
+    
     public static List<ScanResult> wifiList = new ArrayList<ScanResult>();
     public static List<WifiP2pDevice> peers = new ArrayList<WifiP2pDevice>();
+    
     public static List<WifiP2pDevice> validAP = new ArrayList<WifiP2pDevice>();
-
+    public static ArrayAdapter<WifiP2pDevice> adapter;
     //private WifiMainActivity activity;
 	
-    public WifiBroadcastReceiver(WifiP2pManager p2pManager,WifiManager wifiManager, Channel channel) {
+    public WifiBroadcastReceiver(WifiP2pManager p2pManager,WifiManager wifiManager, Channel channel, Activity activity) {
         super();
         this.p2pManager = p2pManager;
         this.wifiManager = wifiManager;
         this.channel = channel;
-        
+        this.activity = activity;
     }
-    
+        
     @Override
 	public void onReceive(Context context, Intent intent) {
 		// TODO Auto-generated method stub
@@ -146,7 +153,13 @@ public class WifiBroadcastReceiver extends BroadcastReceiver implements PeerList
     				validAP.add(device);
     			}	
     		}
-         }
+    		
+    		// Notify the main thread.
+    		activity.runOnUiThread(new Runnable() {
+    		    public void run() {
+    		        adapter.notifyDataSetChanged();
+    		    }
+    		});         }
 		 
 	}
 
