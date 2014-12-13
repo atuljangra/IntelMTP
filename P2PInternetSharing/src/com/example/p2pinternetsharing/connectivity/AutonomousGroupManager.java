@@ -12,7 +12,7 @@ import android.util.Log;
 public class AutonomousGroupManager implements Runnable {
 	private static final String DEBUG_TAG = "MAIN_AADHA_DEBUGGING_AND_SHIT";
 
-	private WifiP2pGroup savedgroup;
+	public static WifiP2pGroup savedgroup;
 	
 	private Boolean isAPRunning;
 	//private WifiP2pGroup

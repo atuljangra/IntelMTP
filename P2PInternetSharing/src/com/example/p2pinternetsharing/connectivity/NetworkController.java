@@ -38,6 +38,9 @@ public class NetworkController implements Runnable{
 	
 	private Activity activity;
 	
+	public Thread pwrdSender;
+	
+	public Thread pwrdReceiver;	
 	//public Thread accessPointsLocator;
 	
 	//public WifiScanner wifiScanner;
@@ -50,15 +53,17 @@ public class NetworkController implements Runnable{
 		this.activityContext = activityContext;
 		this.activity = activity;
 		// TODO Auto-generated method stub
-		intentFilter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION);
+		intentFilter.addAction(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION);
 
 	    // Indicates a change in the list of available peers.
-	    intentFilter.addAction(WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION);
+	    intentFilter.addAction(WifiP2pManager.WIFI_P2P_DISCOVERY_CHANGED_ACTION);
 
 	    // Indicates the state of Wi-Fi P2P connectivity has changed.
-	    intentFilter.addAction(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION);
+	    intentFilter.addAction(WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION);
 
 	    // Indicates this device's details have changed.
+	    intentFilter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION);
+	    
 	    intentFilter.addAction(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION);
 	    
 	    intentFilter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION);
@@ -67,6 +72,8 @@ public class NetworkController implements Runnable{
 	    mChannel = mManager.initialize(activityContext, activityContext.getMainLooper(), null);	
 	    
 		wifiManager = (WifiManager) activityContext.getSystemService(Context.WIFI_SERVICE);
+		
+		receiver = new WifiBroadcastReceiver(mManager, wifiManager, mChannel,activity);
 	       	    
 	}
 	
@@ -75,8 +82,7 @@ public class NetworkController implements Runnable{
 	public void onResume() {
 		if(join)
 			return;
-		
-        receiver = new WifiBroadcastReceiver(mManager, wifiManager, mChannel, activity);
+	
         activityContext.registerReceiver(receiver, intentFilter);
         
 	}
@@ -99,16 +105,6 @@ public class NetworkController implements Runnable{
 		(new Thread(autoGPManager)).start();
 		while(true){
 			wifiManager.startScan();
-	        mManager.discoverPeers(mChannel, new WifiP2pManager.ActionListener() {
-	            @Override
-	            public void onSuccess() {
-	                Log.d("dicovery","successful");
-	            }
-	            @Override
-	            public void onFailure(int reasonCode) {
-	                Log.d("dicovery","failure");
-	            }
-	        });
 	        
 			try {
 				Thread.sleep(10000);
@@ -121,6 +117,9 @@ public class NetworkController implements Runnable{
 				break;
 			}
 		}
+		
+		pwrdReceiver = new Thread(new passPhraseReceiver(activityContext));
+		pwrdReceiver.start();
 		
 		//accessPointsLocator = new Thread(new LocateAccessPoint(mManager, mChannel, activityContext));
 		//accessPointsLocator.start();
@@ -154,15 +153,33 @@ public class NetworkController implements Runnable{
         });
 			
 	}
-	/*	
-	public static void startGp() {
 	
+	public void disconnectAP(){
+		mManager.removeGroup(mChannel,new ActionListener() {
+
+			@Override
+            public void onSuccess() {
+            	Log.d("disconnect", "success");
+            }
+			
+            @Override
+            public void onFailure(int reason) {
+            	Log.d("disconnect", "failiure");
+            }
+
+        });
+	}
+		
+	public  void startGp() {
+		autoGPManager.startGp();
+		pwrdSender = new Thread(new passPhraseSender(autoGPManager.savedgroup));
+		pwrdSender.start();
 	}
 		
 	public void stopGp(){
-		
+		autoGPManager.stopGp();
 	}
-	
+	/*
 	
 	public Boolean isGroupFormed(){		
 		return true;

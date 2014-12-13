@@ -14,6 +14,8 @@ import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pDeviceList;
+import android.net.wifi.p2p.WifiP2pGroup;
+import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.net.wifi.p2p.WifiP2pManager.Channel;
 import android.net.wifi.p2p.WifiP2pManager.PeerListListener;
@@ -24,7 +26,7 @@ public class WifiBroadcastReceiver extends BroadcastReceiver implements PeerList
 
 	private WifiP2pManager p2pManager;
 	private WifiManager wifiManager;
-    private Channel channel;
+    private Channel p2pChannel;
     
     // Needed to make changes in the UI.
     private Activity activity;
@@ -40,7 +42,7 @@ public class WifiBroadcastReceiver extends BroadcastReceiver implements PeerList
         super();
         this.p2pManager = p2pManager;
         this.wifiManager = wifiManager;
-        this.channel = channel;
+        this.p2pChannel = channel;
         this.activity = activity;
     }
         
@@ -48,42 +50,70 @@ public class WifiBroadcastReceiver extends BroadcastReceiver implements PeerList
 	public void onReceive(Context context, Intent intent) {
 		// TODO Auto-generated method stub
 		String action = intent.getAction();
-        if (WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION.equals(action)) {
-            // Determine if Wifi P2P mode is enabled or not, alert
-            // the Activity.
-        	Log.d("state changed", " state changed");
-            
-        } else if (WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION.equals(action)) {
-        	
-        	Log.d("peers changed", " peers changed");
-            // The peer list has changed!  We should probably do something about
-            // that.
-        	p2pManager.requestPeers(channel, this);
-
-        } else if (WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION.equals(action)) {
-        	
-            if (p2pManager == null) {
-                return;
-            }
-
-        	NetworkInfo networkInfo = (NetworkInfo) intent
-                      .getParcelableExtra(WifiP2pManager.EXTRA_NETWORK_INFO);
-        	
-            // Connection state changed!  We should probably do something about
-            // that.
-        	
-        	Log.d("connection changed", " connection changed");
-
-        } else if (WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION.equals(action)) {
-            
-        	Log.d("device changed", " device changed");
-        }else if(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION.equals(action)){
+		if(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION.equals(action)){
+			Log.d("Intent","connection changed");
+			WifiP2pInfo info = (WifiP2pInfo)intent.getParcelableExtra(WifiP2pManager.EXTRA_WIFI_P2P_INFO);
+			Log.d("group formed",Boolean.toString(info.groupFormed));
+			
+			WifiP2pGroup gp = (WifiP2pGroup)intent.getParcelableExtra(WifiP2pManager.EXTRA_WIFI_P2P_GROUP);
+			
+			NetworkInfo netinfo = (NetworkInfo)intent.getParcelableExtra(WifiP2pManager.EXTRA_NETWORK_INFO);
+			Log.d("network connection ",Boolean.toString(netinfo.isConnected()));
+			Log.d("network information",netinfo.toString());
+			
+		}else if(WifiP2pManager.WIFI_P2P_DISCOVERY_CHANGED_ACTION.equals(action)){
+			Log.d("Intent","discovery changed");
+			
+			int discState = intent.getIntExtra(WifiP2pManager.EXTRA_DISCOVERY_STATE, -1);
+			if(discState == WifiP2pManager.WIFI_P2P_DISCOVERY_STARTED){
+				Log.d("discovery state","started");
+			}else if(discState == WifiP2pManager.WIFI_P2P_DISCOVERY_STOPPED){
+				Log.d("discovery state","stoped");
+				startDiscovery();
+		        
+			}
+			
+		}else if(WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION.equals(action)){
+			Log.d("Intent","peers changed");
+			p2pManager.requestPeers(p2pChannel,this);
+			getScanList();
+			
+		}else if(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION.equals(action)){
+			Log.d("Intent","state changed");
+			int wifistate = intent.getIntExtra(WifiP2pManager.EXTRA_WIFI_STATE, -1);
+			if(wifistate == WifiP2pManager.WIFI_P2P_STATE_ENABLED){
+				Log.d("p2p state","enabled");
+				startDiscovery();
+			}else if(wifistate == WifiP2pManager.WIFI_P2P_STATE_DISABLED){
+				Log.d("p2pstate","disabled");
+			}
+					
+			
+		}else if(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION.equals(action)){
+			Log.d("Intent","device cahnged");
+		}else if(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION.equals(action)){
         	getScanList();
         }
-
+		else{
+			Log.d("Intent","unknown");
+		}
 		
 	}
-    private void getScanList(){
+	private void startDiscovery(){
+		p2pManager.discoverPeers(p2pChannel, new WifiP2pManager.ActionListener() {
+            @Override
+            public void onSuccess() {
+                Log.d("discovery","success");
+            }
+
+            @Override
+            public void onFailure(int reasonCode) {
+                Log.d("discovery","failure");
+            }
+        });
+	}
+	
+    public void getScanList(){
     	wifiList = wifiManager.getScanResults();
         List<ScanResult> newList = new ArrayList<ScanResult>();
         StringBuilder sb = new StringBuilder();
