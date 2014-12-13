@@ -66,13 +66,14 @@ public class passPhraseReceiver implements Runnable {
 			}
 		WifiManager wifiManager = (WifiManager)activityContext.getSystemService(Context.WIFI_SERVICE); 
 		wifiManager.addNetwork(conf);
+		wifiManager.saveConfiguration();
 		List<WifiConfiguration> list = wifiManager.getConfiguredNetworks();
 		for( WifiConfiguration i : list ) {
 		    if(i.SSID != null && i.SSID.equals(conf.SSID )) {
 		         wifiManager.disconnect();
 		         wifiManager.enableNetwork(i.networkId, true);
 		         wifiManager.reconnect();               
-
+		         
 		         break;
 		    }           
 		 }
