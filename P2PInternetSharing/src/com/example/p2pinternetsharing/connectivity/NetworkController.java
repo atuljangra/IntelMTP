@@ -154,6 +154,36 @@ public class NetworkController implements Runnable{
         });
 			
 	}
+
+
+	public void joinAP(final int position){
+		
+		final List<WifiP2pDevice> validAP2pDevices = WifiBroadcastReceiver.validAP;
+		if(validAP2pDevices == null || validAP2pDevices.size() == 0)
+			return;
+		join = true;
+		WifiP2pConfig config = new WifiP2pConfig();
+        config.deviceAddress = validAP2pDevices.get(position).deviceAddress;
+        config.wps.setup = WpsInfo.PBC;
+		mManager.connect(mChannel, config, new ActionListener() {
+
+			@Override
+            public void onSuccess() {
+            	Log.d("joining " + validAP2pDevices.get(position).deviceName, "success");
+            }
+			
+            @Override
+            public void onFailure(int reason) {
+            	Log.d("creation " + validAP2pDevices.get(position).deviceName, "failure");
+             	if(reason == 2){
+                	Log.d("error","busy");
+             	}
+            }
+
+        });
+			
+	}
+
 	/*	
 	public static void startGp() {
 	

@@ -9,8 +9,11 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.example.p2pinternetsharing.connectivity.NetworkController;
 import com.example.p2pinternetsharing.connectivity.WifiBroadcastReceiver;
@@ -25,6 +28,19 @@ public class MainActivity extends Activity {
 		setContentView(R.layout.activity_main);
 
         final ListView listview = (ListView)findViewById(R.id.list);
+        listview.setOnItemClickListener(new OnItemClickListener() {
+
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view,
+					int position, long id) {
+				Toast.makeText(getApplicationContext(), "Trying to connect to " + 
+					WifiBroadcastReceiver.validAP.get(position).deviceName, Toast.LENGTH_SHORT).show();
+				
+				// Connect to the AP with WiFip2p.
+				networkController.joinAP(position);
+			}
+		});
+
         // Setting the adapter.        
         final ArrayAdapter<WifiP2pDevice> adapter = new ArrayAdapter<WifiP2pDevice>(getApplicationContext(), 
         		R.layout.list, WifiBroadcastReceiver.validAP);
