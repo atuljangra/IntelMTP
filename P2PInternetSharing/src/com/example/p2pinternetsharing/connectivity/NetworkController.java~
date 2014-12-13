@@ -153,6 +153,7 @@ public class NetworkController implements Runnable{
         });
 			
 	}
+<<<<<<< HEAD
 
 
 	public void joinAP(final int position){
@@ -185,7 +186,8 @@ public class NetworkController implements Runnable{
 
 	/*	
 	public static void startGp() {
-
+=======
+>>>>>>> da2ac8d3064f44cc700c3f26cf99b3184586efad
 	
 	public void disconnectAP(){
 		mManager.removeGroup(mChannel,new ActionListener() {

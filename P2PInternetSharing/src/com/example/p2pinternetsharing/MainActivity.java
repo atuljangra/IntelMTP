@@ -87,12 +87,13 @@ public class MainActivity extends Activity {
 	}
 	
 	public void startGP(View view) {
-		networkController.autoGPManager.startGp();
+		//Need to stop networkcontroller thread
+		networkController.startGp();
         
 	}
 	
 	public void stopGP(View view){
-		networkController.autoGPManager.stopGp();
+		networkController.stopGp();
 	}
 	
 	
@@ -105,6 +106,9 @@ public class MainActivity extends Activity {
 	
 	public void join(View view){
 		networkController.joinAP();
+	}
+	public void disconnect(View view){
+		networkController.disconnectAP();
 	}
 
 
