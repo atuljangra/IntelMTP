@@ -5,17 +5,12 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
-import java.util.Date;
 import java.util.List;
 
 import android.content.Context;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
 import android.util.Log;
-import android.util.Pair;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
-import android.widget.TextView;
 
 
 public class passPhraseReceiver implements Runnable {
@@ -45,7 +40,10 @@ public class passPhraseReceiver implements Runnable {
 					byte byteData[] = packet.getData();
 					Log.d("data received ",new String(byteData,0,packet.getLength()));
 					String data = new String(byteData, 0, packet.getLength());
-					String parameters[] = data.split(":");
+					
+					// Convert to Message.
+					Message m = Message.createMessage(data);
+					String parameters[] = m.getMsg().split(":");
 					
 					Log.d(parameters[0],parameters[1]);
 					conf.SSID = "\"" + parameters[0] + "\"";

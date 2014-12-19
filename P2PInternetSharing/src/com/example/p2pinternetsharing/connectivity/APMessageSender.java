@@ -9,7 +9,8 @@ import java.net.UnknownHostException;
 
 import android.net.wifi.p2p.WifiP2pGroup;
 
-public class passPhraseSender implements Runnable {
+// Broadcast message sender.
+public class APMessageSender implements Runnable {
 
 	public  WifiP2pGroup savedgroup;
 	
@@ -18,14 +19,15 @@ public class passPhraseSender implements Runnable {
 
 	int recievingPort = 8080;
 	private DatagramSocket socket;
-	
-	public passPhraseSender(WifiP2pGroup savedgroup) {
+	private String msgToSend;
+	public APMessageSender(WifiP2pGroup savedgroup, Message msg) {
 		this.savedgroup = savedgroup;
+		this.msgToSend = msg.getMessageToSend();
+		
 		// TODO Auto-generated constructor stub
 	}
 	@Override
 	public void run() {
-		String msg = savedgroup.getNetworkName()+":"+savedgroup.getPassphrase();
 		try {
 			socket = new DatagramSocket();
 			socket.setBroadcast(true);
@@ -33,7 +35,7 @@ public class passPhraseSender implements Runnable {
 
 			while(true){
 				
-				DatagramPacket packet = new DatagramPacket(msg.getBytes(), msg.length(),
+				DatagramPacket packet = new DatagramPacket(this.msgToSend.getBytes(), this.msgToSend.length(),
 					    InetAddress.getByName("192.168.49.255"), recievingPort);
 				socket.send(packet);
 				//activity.runOnUiThread(new uiUpdater(new String(packet.getData())));

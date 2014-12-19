@@ -201,7 +201,9 @@ public class NetworkController implements Runnable{
 		
 	public  void startGp() {
 		autoGPManager.startGp();
-		pwrdSender = new Thread(new passPhraseSender(autoGPManager.savedgroup));
+		String msg = autoGPManager.savedgroup.getNetworkName()+":"+autoGPManager.savedgroup.getPassphrase();
+		int code = Message.APPASSPHRASE;
+		pwrdSender = new Thread(new APMessageSender(autoGPManager.savedgroup, new Message(code, msg)));
 		pwrdSender.start();
 	}
 		
