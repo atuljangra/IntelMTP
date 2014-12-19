@@ -183,10 +183,6 @@ public class NetworkController implements Runnable{
 			
 	}
 
-	/*	
-	public static void startGp() {
-
-	
 	public void disconnectAP(){
 		mManager.removeGroup(mChannel,new ActionListener() {
 
@@ -212,17 +208,16 @@ public class NetworkController implements Runnable{
 	public void stopGp(){
 		autoGPManager.stopGp();
 	}
-	/*
-	
+
 	public Boolean isGroupFormed(){		
 		return true;
 	}
 	
-	 returns empty string if group not formed yet 
+	// returns empty string if group not formed yet 
 	public String getPassphrase(){
 		
 			return "";
-	}*/
+	}
 	
 }
 
