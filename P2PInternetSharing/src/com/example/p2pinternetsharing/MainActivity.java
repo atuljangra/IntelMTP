@@ -86,6 +86,7 @@ public class MainActivity extends Activity {
 		return super.onOptionsItemSelected(item);
 	}
 	
+	
 	public void startGP(View view) {
 		//Need to stop networkcontroller thread
 		networkController.startGp();

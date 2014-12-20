@@ -52,8 +52,24 @@ public class LeaderReceiver implements Runnable {
 						continue;
 					}					
 					leaderAddress = m.getMsg();
+					// TODO We do not want to break.
 					break;
 				}
+			
+			NetworkController.shadowMasterAddress = leaderAddress;
+			// If I am the appointed leader, do stuff.
+			if (leaderAddress.compareTo(getMACAddress()) == 0) {
+				NetworkController.amIShadowMaster = true;	
+				// Spawn a new thread.
+				new Thread(new ShadowMaster(this.group, context)).start();
+			
+			} else {
+				NetworkController.amIShadowMaster = false;
+			}
+			
+			
+			// Close the sockets.
+			socket.close();
 			
 			} catch (SocketException e1) {
 				// TODO Auto-generated catch block
@@ -66,17 +82,7 @@ public class LeaderReceiver implements Runnable {
 				e.printStackTrace();
 			}		
 	
-			NetworkController.shadowMasterAddress = leaderAddress;
-			// If I am the appointed leader, do stuff.
-			if (leaderAddress.compareTo(getMACAddress()) == 0) {
-				NetworkController.amIShadowMaster = true;	
-				// Spawn a new thread.
-				new Thread(new ShadowMaster(this.group, context)).start();
-			
-			} else {
-				NetworkController.amIShadowMaster = false;
-			}
-			
+
 	}
 
 

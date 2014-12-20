@@ -22,7 +22,7 @@ public class LeaderElection implements Runnable{
 		while (true) {
 			if (p2pgroup == null)
 				continue;
-			
+			// TODO Client might disconnect over wifiDirect.
 			Collection<WifiP2pDevice> connectedDevices = p2pgroup.getClientList();
 			if (connectedDevices.isEmpty()) {
 				// Sleep

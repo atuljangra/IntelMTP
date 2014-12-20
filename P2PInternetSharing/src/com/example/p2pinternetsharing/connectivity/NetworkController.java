@@ -33,18 +33,20 @@ public class NetworkController implements Runnable{
 	private Context activityContext;
 	
 	
-	public AutonomousGroupManager autoGPManager;
+	public static AutonomousGroupManager autoGPManager;
 	
 	private Boolean join = false;
 	
 	private Activity activity;
 	
-	public Thread pwrdSender;
-	
-	public Thread pwrdReceiver;	
-	public Thread leaderElection;
-	public Thread leaderRcv;
-	
+	public static Thread pwrdSender;
+	public static Thread leaderElection;
+
+	public static Thread leaderRcv;
+	public static Thread pwrdReceiver;	
+
+	public static boolean leaderRcvStop = false;
+	public static boolean pwrdReceiverStop = false;
 	// Just a placeholder.
 	public static boolean amIShadowMaster = false;
 	public static boolean shadowConfigReceived = false;
@@ -115,6 +117,7 @@ public class NetworkController implements Runnable{
 	    /*This is for the initialization . An autonomous group is formed and closed */
 		(new Thread(autoGPManager)).start();
 		
+		// AP will never exit this function.
 		while(true){
 			wifiManager.startScan();
 	        
@@ -130,15 +133,14 @@ public class NetworkController implements Runnable{
 			}
 		}
 		
+		// Non - AP functions.
+		
 		pwrdReceiver = new Thread(new passPhraseReceiver(activityContext));
 		pwrdReceiver.start();
 		
 		// Start the leader receiving thread.
 		leaderRcv = new Thread(new LeaderReceiver(activityContext, autoGPManager.savedgroup));
 		leaderRcv.start();
-		
-		//accessPointsLocator = new Thread(new LocateAccessPoint(mManager, mChannel, activityContext));
-		//accessPointsLocator.start();
 		
 	}
 
@@ -147,7 +149,6 @@ public class NetworkController implements Runnable{
 		List<WifiP2pDevice> validAP2pDevices = WifiBroadcastReceiver.validAP;
 		if(validAP2pDevices == null || validAP2pDevices.size() == 0)
 			return;
-		join = true;
 		 WifiP2pConfig config = new WifiP2pConfig();
          config.deviceAddress = validAP2pDevices.get(0).deviceAddress;
          config.wps.setup = WpsInfo.PBC;
@@ -155,6 +156,7 @@ public class NetworkController implements Runnable{
 
 			@Override
             public void onSuccess() {
+				join = true;
             	Log.d("joining", "success");
             }
 			
@@ -176,7 +178,6 @@ public class NetworkController implements Runnable{
 		final List<WifiP2pDevice> validAP2pDevices = WifiBroadcastReceiver.validAP;
 		if(validAP2pDevices == null || validAP2pDevices.size() == 0)
 			return;
-		join = true;
 		WifiP2pConfig config = new WifiP2pConfig();
         config.deviceAddress = validAP2pDevices.get(position).deviceAddress;
         config.wps.setup = WpsInfo.PBC;
@@ -184,6 +185,7 @@ public class NetworkController implements Runnable{
 
 			@Override
             public void onSuccess() {
+				join = true;
             	Log.d("joining " + validAP2pDevices.get(position).deviceName, "success");
             }
 			
@@ -215,7 +217,8 @@ public class NetworkController implements Runnable{
         });
 	}
 		
-	public  void startGp() {
+	// This will be called in case of shadow master.
+	public static void startGp() {
 		autoGPManager.startGp();
 		
 		// Broadcast the ssid and password.
@@ -230,6 +233,20 @@ public class NetworkController implements Runnable{
 		
 	}
 		
+	public static void restart() {
+		destroy();
+		startGp();
+	}
+
+	private static void destroy() {
+		// Stop all the receiver threads.
+		NetworkController.leaderRcvStop = true; // Unused
+		NetworkController.pwrdReceiverStop = true;
+		
+	}
+
+
+
 	public void stopGp(){
 		autoGPManager.stopGp();
 	}

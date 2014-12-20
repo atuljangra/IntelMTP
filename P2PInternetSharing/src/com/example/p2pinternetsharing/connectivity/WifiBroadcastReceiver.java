@@ -113,6 +113,7 @@ public class WifiBroadcastReceiver extends BroadcastReceiver implements PeerList
 		}
 
 		// TODO See if all the cases are handled.
+		/*
 		// If I've received the shadowConfig
 		if (NetworkController.shadowConfigReceived && !NetworkController.amIShadowMaster) {
 			// Try connecting to the shadow master configuration.
@@ -129,8 +130,9 @@ public class WifiBroadcastReceiver extends BroadcastReceiver implements PeerList
 			         break;
 			    }           
 			 }
-
 		}
+		*/
+		// The other case will be handled in passPhraseReceiver.
 		
 		if (NetworkController.amIShadowMaster) {
 			// Try starting the new AP.

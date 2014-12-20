@@ -30,7 +30,8 @@ public class passPhraseReceiver implements Runnable {
 			byte[] buff = new byte[256];
 			DatagramPacket packet = new DatagramPacket(buff, buff.length);
 			
-			while(true){
+			// We want to exit which this shared variable is changed.
+			while(!NetworkController.pwrdReceiverStop){
 					socket.receive(packet);
 					// Extract shit.
 					// Packet is as follows: ip_addr::true or ip_addr::false
@@ -57,6 +58,9 @@ public class passPhraseReceiver implements Runnable {
 						WifiManager wifiManager = (WifiManager)activityContext.getSystemService(Context.WIFI_SERVICE); 
 						wifiManager.addNetwork(conf);
 						wifiManager.saveConfiguration();
+						
+						// TODO Connect only if we are not already connected to this.
+						
 						List<WifiConfiguration> list = wifiManager.getConfiguredNetworks();
 						for( WifiConfiguration i : list ) {
 						    if(i.SSID != null && i.SSID.equals(conf.SSID )) {
@@ -75,10 +79,11 @@ public class passPhraseReceiver implements Runnable {
 						NetworkController.shadowConfig.preSharedKey = preSharedKey;
 						NetworkController.shadowConfigReceived = true;
 					}
-					
-					break;
-					
-				}
+
+			}
+			
+			//Close the socket;
+			socket.close();
 			
 			} catch (SocketException e1) {
 				// TODO Auto-generated catch block
