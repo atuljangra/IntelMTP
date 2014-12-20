@@ -41,6 +41,7 @@ public class NetworkController implements Runnable{
 	public Thread pwrdSender;
 	
 	public Thread pwrdReceiver;	
+	public Thread leaderElection;
 	//public Thread accessPointsLocator;
 	
 	//public WifiScanner wifiScanner;
@@ -100,9 +101,10 @@ public class NetworkController implements Runnable{
 
 	    
 	    autoGPManager = new AutonomousGroupManager(mManager,mChannel);
-	    
+	    // TODO Make sure that nothing is happening when the group is being formed.
 	    /*This is for the initialization . An autonomous group is formed and closed */
 		(new Thread(autoGPManager)).start();
+		
 		while(true){
 			wifiManager.startScan();
 	        
@@ -201,10 +203,17 @@ public class NetworkController implements Runnable{
 		
 	public  void startGp() {
 		autoGPManager.startGp();
+		
+		// Broadcast the ssid and password.
 		String msg = autoGPManager.savedgroup.getNetworkName()+":"+autoGPManager.savedgroup.getPassphrase();
-		int code = Message.APPASSPHRASE;
+		String code = Message.APPASSPHRASE;
 		pwrdSender = new Thread(new APMessageSender(autoGPManager.savedgroup, new Message(code, msg)));
 		pwrdSender.start();
+		
+		// Start the leader election thread that will be responsible for choosing a leader and broadcasting that.
+		leaderElection = new Thread(new LeaderElection(autoGPManager.savedgroup));
+		leaderElection.start();
+		
 	}
 		
 	public void stopGp(){
