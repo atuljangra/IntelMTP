@@ -42,7 +42,7 @@ public class LeaderElection implements Runnable{
 		// We have a leader. Bcast it.
 		String code = Message.LEADERDETAILS;
 		String msg = leader.deviceAddress;
-		leaderBcaster = new Thread(new APMessageSender(p2pgroup, new Message(code, msg)));
+		leaderBcaster = new Thread(new APMessageSender(p2pgroup, new Message(code, msg), LeaderReceiver.recievingPort));
 		leaderBcaster.start();
 
 	}

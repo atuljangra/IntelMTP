@@ -10,7 +10,9 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.net.NetworkInfo;
+import android.net.NetworkInfo.State;
 import android.net.wifi.ScanResult;
+import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
 import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pDeviceList;
@@ -90,15 +92,53 @@ public class WifiBroadcastReceiver extends BroadcastReceiver implements PeerList
 					
 			
 		}else if(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION.equals(action)){
-			Log.d("Intent","device cahnged");
+			Log.d("Intent","device changed");
 		}else if(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION.equals(action)){
         	getScanList();
         }
+		else if (WifiManager.NETWORK_STATE_CHANGED_ACTION.equals(action)) {
+			NetworkInfo networkInfo = (NetworkInfo) intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
+			handleNetworkActionChanged(networkInfo);
+			
+		}
 		else{
 			Log.d("Intent","unknown");
 		}
 		
 	}
+    
+	private void handleNetworkActionChanged(NetworkInfo networkInfo) {
+		if (networkInfo.getState() != State.DISCONNECTED) {
+			return;
+		}
+
+		// TODO See if all the cases are handled.
+		// If I've received the shadowConfig
+		if (NetworkController.shadowConfigReceived && !NetworkController.amIShadowMaster) {
+			// Try connecting to the shadow master configuration.
+			WifiManager wifiManager = (WifiManager)this.activity.getSystemService(Context.WIFI_SERVICE); 
+			wifiManager.addNetwork(NetworkController.shadowConfig);
+			wifiManager.saveConfiguration();
+			List<WifiConfiguration> list = wifiManager.getConfiguredNetworks();
+			for( WifiConfiguration i : list ) {
+			    if(i.SSID != null && i.SSID.equals(NetworkController.shadowConfig.SSID )) {
+			         wifiManager.disconnect();
+			         wifiManager.enableNetwork(i.networkId, true);
+			         wifiManager.reconnect();               
+			         
+			         break;
+			    }           
+			 }
+
+		}
+		
+		if (NetworkController.amIShadowMaster) {
+			// Try starting the new AP.
+			ShadowMaster.startShadowMaster();
+		}
+		
+	}
+
 	private void startDiscovery(){
 		p2pManager.discoverPeers(p2pChannel, new WifiP2pManager.ActionListener() {
             @Override

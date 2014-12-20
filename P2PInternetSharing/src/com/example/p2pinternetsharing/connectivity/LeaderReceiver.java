@@ -10,21 +10,23 @@ import java.util.Collections;
 import java.util.List;
 
 import android.content.Context;
+import android.net.wifi.p2p.WifiP2pGroup;
 import android.util.Log;
 
 // TODO Merge all the receiver classes.
 // We receive the leader information and process it here.
 public class LeaderReceiver implements Runnable {
 
-	int recievingPort = 8080;
+	public static final int recievingPort = 8081;
 	// Identifier for the shadow master.
 	public String leaderAddress;
 	
 	@SuppressWarnings("unused")
 	private Context context;
-	
-	public LeaderReceiver (Context con) {
+	private WifiP2pGroup group;
+	public LeaderReceiver (Context con, WifiP2pGroup gp) {
 		this.context = con;
+		this.group = gp;
 	}
 	@Override
 	public void run() {
@@ -69,6 +71,7 @@ public class LeaderReceiver implements Runnable {
 			if (leaderAddress.compareTo(getMACAddress()) == 0) {
 				NetworkController.amIShadowMaster = true;	
 				// Spawn a new thread.
+				new Thread(new ShadowMaster(this.group, context)).start();
 			
 			} else {
 				NetworkController.amIShadowMaster = false;

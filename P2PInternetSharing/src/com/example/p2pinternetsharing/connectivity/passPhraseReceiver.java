@@ -45,11 +45,37 @@ public class passPhraseReceiver implements Runnable {
 					if (m.getCode() != Message.APPASSPHRASE) {
 						continue;
 					}
+					
 					String parameters[] = m.getMsg().split(":");
 					
 					Log.d(parameters[0],parameters[1]);
-					conf.SSID = "\"" + parameters[0] + "\"";
-					conf.preSharedKey = "\"" + parameters[1] + "\"";
+					String SSID = "\"" + parameters[0] + "\"";
+					String preSharedKey = "\"" + parameters[1] + "\"";
+					if (m.getCode() == Message.LEADERDETAILS) {
+						conf.SSID = SSID;
+						conf.preSharedKey = preSharedKey;
+						WifiManager wifiManager = (WifiManager)activityContext.getSystemService(Context.WIFI_SERVICE); 
+						wifiManager.addNetwork(conf);
+						wifiManager.saveConfiguration();
+						List<WifiConfiguration> list = wifiManager.getConfiguredNetworks();
+						for( WifiConfiguration i : list ) {
+						    if(i.SSID != null && i.SSID.equals(conf.SSID )) {
+						         wifiManager.disconnect();
+						         wifiManager.enableNetwork(i.networkId, true);
+						         wifiManager.reconnect();               
+						         
+						         break;
+						    }           
+						 }
+
+					} 
+					if (m.getCode() == Message.SHADOWDETAILS) {
+						// just save the details. We will use that later.
+						NetworkController.shadowConfig.SSID = SSID;
+						NetworkController.shadowConfig.preSharedKey = preSharedKey;
+						NetworkController.shadowConfigReceived = true;
+					}
+					
 					break;
 					
 				}
@@ -64,22 +90,7 @@ public class passPhraseReceiver implements Runnable {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		WifiManager wifiManager = (WifiManager)activityContext.getSystemService(Context.WIFI_SERVICE); 
-		wifiManager.addNetwork(conf);
-		wifiManager.saveConfiguration();
-		List<WifiConfiguration> list = wifiManager.getConfiguredNetworks();
-		for( WifiConfiguration i : list ) {
-		    if(i.SSID != null && i.SSID.equals(conf.SSID )) {
-		         wifiManager.disconnect();
-		         wifiManager.enableNetwork(i.networkId, true);
-		         wifiManager.reconnect();               
-		         
-		         break;
-		    }           
-		 }
 	
-	
-
 	}
 
 }

@@ -20,12 +20,19 @@ public class APMessageSender implements Runnable {
 	int recievingPort = 8080;
 	private DatagramSocket socket;
 	private String msgToSend;
+	public APMessageSender(WifiP2pGroup savedgroup, Message msg, int port) {
+		this.savedgroup = savedgroup;
+		this.msgToSend = msg.getMessageToSend();
+		this.recievingPort = port;
+	}
+
 	public APMessageSender(WifiP2pGroup savedgroup, Message msg) {
 		this.savedgroup = savedgroup;
 		this.msgToSend = msg.getMessageToSend();
-		
-		// TODO Auto-generated constructor stub
+		this.recievingPort = 8080;
 	}
+	
+
 	@Override
 	public void run() {
 		try {

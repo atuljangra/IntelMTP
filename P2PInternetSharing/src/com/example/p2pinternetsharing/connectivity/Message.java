@@ -4,8 +4,8 @@ package com.example.p2pinternetsharing.connectivity;
 public class Message {
 	// Codes for different messages.
 	public static final String APPASSPHRASE = "0";
-
-	public static final String LEADERDETAILS = "1";
+	public static final String SHADOWDETAILS = "1";
+	public static final String LEADERDETAILS = "2";
 	
 	private String msg;
 	private String code;

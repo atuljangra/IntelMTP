@@ -5,6 +5,7 @@ import java.util.List;
 import android.app.Activity;
 import android.content.Context;
 import android.content.IntentFilter;
+import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
 import android.net.wifi.WpsInfo;
 import android.net.wifi.p2p.WifiP2pConfig;
@@ -45,9 +46,11 @@ public class NetworkController implements Runnable{
 	public Thread leaderRcv;
 	
 	// Just a placeholder.
-	public static boolean amIShadowMaster;
+	public static boolean amIShadowMaster = false;
+	public static boolean shadowConfigReceived = false;
 	public static String shadowMasterAddress;
-	
+	public static WifiConfiguration shadowConfig;
+
 	//public Thread accessPointsLocator;
 	
 	//public WifiScanner wifiScanner;
@@ -74,6 +77,7 @@ public class NetworkController implements Runnable{
 	    intentFilter.addAction(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION);
 	    
 	    intentFilter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION);
+	    intentFilter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
 	    
 	    mManager = (WifiP2pManager) activityContext.getSystemService(Context.WIFI_P2P_SERVICE);
 	    mChannel = mManager.initialize(activityContext, activityContext.getMainLooper(), null);	
@@ -130,7 +134,7 @@ public class NetworkController implements Runnable{
 		pwrdReceiver.start();
 		
 		// Start the leader receiving thread.
-		leaderRcv = new Thread(new LeaderReceiver(activityContext));
+		leaderRcv = new Thread(new LeaderReceiver(activityContext, autoGPManager.savedgroup));
 		leaderRcv.start();
 		
 		//accessPointsLocator = new Thread(new LocateAccessPoint(mManager, mChannel, activityContext));
