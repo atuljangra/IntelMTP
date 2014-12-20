@@ -24,8 +24,6 @@ public class passPhraseReceiver implements Runnable {
 	public void run(){
 		DatagramSocket socket;
 		WifiConfiguration conf = new WifiConfiguration();
-		// TODO Auto-generated method stub
-		String networkSSID;
 		try {
 			socket = new DatagramSocket(recievingPort);
 			socket.setBroadcast(true);
@@ -43,6 +41,10 @@ public class passPhraseReceiver implements Runnable {
 					
 					// Convert to Message.
 					Message m = Message.createMessage(data);
+					// Only process the apppassphrase method
+					if (m.getCode() != Message.APPASSPHRASE) {
+						continue;
+					}
 					String parameters[] = m.getMsg().split(":");
 					
 					Log.d(parameters[0],parameters[1]);

@@ -42,6 +42,12 @@ public class NetworkController implements Runnable{
 	
 	public Thread pwrdReceiver;	
 	public Thread leaderElection;
+	public Thread leaderRcv;
+	
+	// Just a placeholder.
+	public static boolean amIShadowMaster;
+	public static String shadowMasterAddress;
+	
 	//public Thread accessPointsLocator;
 	
 	//public WifiScanner wifiScanner;
@@ -122,6 +128,10 @@ public class NetworkController implements Runnable{
 		
 		pwrdReceiver = new Thread(new passPhraseReceiver(activityContext));
 		pwrdReceiver.start();
+		
+		// Start the leader receiving thread.
+		leaderRcv = new Thread(new LeaderReceiver(activityContext));
+		leaderRcv.start();
 		
 		//accessPointsLocator = new Thread(new LocateAccessPoint(mManager, mChannel, activityContext));
 		//accessPointsLocator.start();
