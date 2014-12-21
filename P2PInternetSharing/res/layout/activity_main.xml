@@ -13,7 +13,7 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/button3"
-        android:layout_below="@+id/button3"
+        android:layout_below="@+id/status"
         android:drawSelectorOnTop="false" >
     </ListView>
 
@@ -48,5 +48,14 @@
         android:layout_toLeftOf="@+id/button2"
         android:onClick="join"
         android:text="Join" />
+
+    <TextView
+        android:id="@+id/status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/list"
+        android:layout_below="@+id/button3"
+        android:text="status"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
             
 </RelativeLayout>

@@ -31,12 +31,15 @@ public class AutonomousGroupManager implements Runnable {
 	
 	@Override
 	public void run() {
+	    NetworkController.setStatus("Starting Group");
+
 		mManager.createGroup(mChannel, new ActionListener() {
 
 			@Override
             public void onSuccess() {
 
 					try {
+					    NetworkController.setStatus("Sleeping, on success and group info takes time.");
 						Log.d(DEBUG_TAG, "Sleeping, on success and group info takes time.");
 					Thread.sleep(2000);
 				} catch (InterruptedException e) {
@@ -50,6 +53,8 @@ public class AutonomousGroupManager implements Runnable {
          				while (true) {
          					if(group != null ){
          					// Remove the progress bar.
+        					    NetworkController.setStatus("Group formed, exiting.");
+
      							Log.d(DEBUG_TAG, "Group formed, exiting.");
      			 				String s = group.getPassphrase();
      			 				Log.d("passphrase", s);
@@ -71,6 +76,7 @@ public class AutonomousGroupManager implements Runnable {
          		});
 
             	Log.d("creation", "success");
+            	
             	
 
             }
@@ -163,6 +169,7 @@ public class AutonomousGroupManager implements Runnable {
 			@Override
 	        public void onSuccess() {
 	            // WiFiDirectBroadcastReceiver will notify us. Ignore for now.
+				NetworkController.setStatus("Closing group");
 	        	Log.d("closing", "success");
 	        	
 	        }

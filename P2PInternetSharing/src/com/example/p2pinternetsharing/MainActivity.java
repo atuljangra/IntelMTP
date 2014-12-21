@@ -13,6 +13,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.p2pinternetsharing.connectivity.NetworkController;
@@ -20,13 +21,17 @@ import com.example.p2pinternetsharing.connectivity.WifiBroadcastReceiver;
 
 public class MainActivity extends Activity {
 
+	public static final String TAG = "MAIN_AADHA_DEBUGGING_AND_SHIT";
 	private  NetworkController networkController;
 	private Thread networkThread;
+	public static TextView status;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
+		status = (TextView)findViewById(R.id.status);
+		status.setText("App started");
         final ListView listview = (ListView)findViewById(R.id.list);
         listview.setOnItemClickListener(new OnItemClickListener() {
 

@@ -2,6 +2,8 @@ package com.example.p2pinternetsharing.connectivity;
 
 import java.util.List;
 
+import com.example.p2pinternetsharing.MainActivity;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.IntentFilter;
@@ -18,7 +20,6 @@ import android.util.Log;
 
 public class NetworkController implements Runnable{
 	@SuppressWarnings("unused")
-	private static final String DEBUG_TAG = "MAIN_AADHA_DEBUGGING_AND_SHIT";
 
 	private final IntentFilter intentFilter = new IntentFilter();
 
@@ -37,7 +38,7 @@ public class NetworkController implements Runnable{
 	
 	private Boolean join = false;
 	
-	private Activity activity;
+	private static Activity activity;
 	
 	public static Thread pwrdSender;
 	public static Thread leaderElection;
@@ -63,7 +64,7 @@ public class NetworkController implements Runnable{
 	public NetworkController(Context activityContext, Activity activity){
 		
 		this.activityContext = activityContext;
-		this.activity = activity;
+		NetworkController.activity = activity;
 		// TODO Auto-generated method stub
 		intentFilter.addAction(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION);
 
@@ -134,11 +135,12 @@ public class NetworkController implements Runnable{
 		}
 		
 		// Non - AP functions.
-		
+		setStatus("Starting password Receiver Thread");
 		pwrdReceiver = new Thread(new passPhraseReceiver(activityContext));
 		pwrdReceiver.start();
 		
 		// Start the leader receiving thread.
+		setStatus("Starting Leader Received thread");
 		leaderRcv = new Thread(new LeaderReceiver(activityContext, autoGPManager.savedgroup));
 		leaderRcv.start();
 		
@@ -186,12 +188,14 @@ public class NetworkController implements Runnable{
 			@Override
             public void onSuccess() {
 				join = true;
-            	Log.d("joining " + validAP2pDevices.get(position).deviceName, "success");
+            	Log.d(MainActivity.TAG, "joining " + validAP2pDevices.get(position).deviceName + "success");
+            	setStatus("Joining " + validAP2pDevices.get(position).deviceName + " Success");
             }
 			
             @Override
             public void onFailure(int reason) {
-            	Log.d("creation " + validAP2pDevices.get(position).deviceName, "failure");
+            	Log.d(MainActivity.TAG, "creation " + validAP2pDevices.get(position).deviceName + "failure");
+            	setStatus("Joining " + validAP2pDevices.get(position).deviceName + " Failure Reason:" + reason);
              	if(reason == 2){
                 	Log.d("error","busy");
              	}
@@ -219,14 +223,17 @@ public class NetworkController implements Runnable{
 		
 	// This will be called in case of shadow master.
 	public static void startGp() {
+		setStatus("starting AP");
 		autoGPManager.startGp();
 		
+		setStatus("Starting password Sender thread");
 		// Broadcast the ssid and password.
 		String msg = autoGPManager.savedgroup.getNetworkName()+":"+autoGPManager.savedgroup.getPassphrase();
 		String code = Message.APPASSPHRASE;
 		pwrdSender = new Thread(new APMessageSender(autoGPManager.savedgroup, new Message(code, msg)));
 		pwrdSender.start();
 		
+		setStatus("Starting leader election thread");
 		// Start the leader election thread that will be responsible for choosing a leader and broadcasting that.
 		leaderElection = new Thread(new LeaderElection(autoGPManager.savedgroup));
 		leaderElection.start();
@@ -234,11 +241,13 @@ public class NetworkController implements Runnable{
 	}
 		
 	public static void restart() {
+		NetworkController.setStatus("Restarting as shadow");
 		destroy();
 		startGp();
 	}
 
 	private static void destroy() {
+		setStatus("Destroying threads");
 		// Stop all the receiver threads.
 		NetworkController.leaderRcvStop = true; // Unused
 		NetworkController.pwrdReceiverStop = true;
@@ -260,7 +269,17 @@ public class NetworkController implements Runnable{
 		
 			return "";
 	}
-	
+
+	public static void setStatus(final String s) {
+		NetworkController.activity.runOnUiThread( new Runnable() {
+			
+			@Override
+			public void run() {
+				MainActivity.status.setText(s);
+				Log.d(MainActivity.TAG, "Setting text to: " + s);
+			}
+		});
+	}
 }
 
 
