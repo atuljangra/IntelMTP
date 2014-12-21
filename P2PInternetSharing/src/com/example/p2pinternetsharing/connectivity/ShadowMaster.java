@@ -24,7 +24,7 @@ public class ShadowMaster implements Runnable{
 	public void run() {
 		// Broadcast the ssid and password.
 		String msg = savedGroup.getNetworkName()+":"+savedGroup.getPassphrase();
-		String code = Message.APPASSPHRASE;
+		String code = Message.SHADOWDETAILS;
 		bcaster = new Thread(new APMessageSender(savedGroup, new Message(code, msg)));
 		bcaster.start();
 	}

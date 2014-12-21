@@ -3,8 +3,8 @@ package com.example.p2pinternetsharing.connectivity;
 
 public class Message {
 	// Codes for different messages.
-	public static final String APPASSPHRASE = "0";
-	public static final String SHADOWDETAILS = "1";
+	public static final String SHADOWDETAILS = "0";
+	public static final String APDETAILS = "1";
 	public static final String LEADERDETAILS = "2";
 	
 	private String msg;

@@ -42,17 +42,13 @@ public class passPhraseReceiver implements Runnable {
 					
 					// Convert to Message.
 					Message m = Message.createMessage(data);
-					// Only process the apppassphrase method
-					if (m.getCode() != Message.APPASSPHRASE) {
-						continue;
-					}
-					
+
 					String parameters[] = m.getMsg().split(":");
 					
 					Log.d(parameters[0],parameters[1]);
 					String SSID = "\"" + parameters[0] + "\"";
 					String preSharedKey = "\"" + parameters[1] + "\"";
-					if (m.getCode() == Message.LEADERDETAILS) {
+					if (m.getCode().equalsIgnoreCase(Message.APDETAILS)) {
 						conf.SSID = SSID;
 						conf.preSharedKey = preSharedKey;
 						WifiManager wifiManager = (WifiManager)activityContext.getSystemService(Context.WIFI_SERVICE); 
@@ -73,7 +69,7 @@ public class passPhraseReceiver implements Runnable {
 						 }
 
 					} 
-					if (m.getCode() == Message.SHADOWDETAILS) {
+					if (m.getCode().equalsIgnoreCase(Message.SHADOWDETAILS)) {
 						// just save the details. We will use that later.
 						NetworkController.shadowConfig.SSID = SSID;
 						NetworkController.shadowConfig.preSharedKey = preSharedKey;

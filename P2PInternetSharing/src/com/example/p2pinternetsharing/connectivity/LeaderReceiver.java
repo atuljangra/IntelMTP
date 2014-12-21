@@ -48,7 +48,7 @@ public class LeaderReceiver implements Runnable {
 					// Convert to Message.
 					Message m = Message.createMessage(data);
 					// We only process leader election.
-					if (m.getCode() != Message.LEADERDETAILS) {
+					if (!m.getCode().equals(Message.LEADERDETAILS)) {
 						continue;
 					}					
 					leaderAddress = m.getMsg();

@@ -229,7 +229,7 @@ public class NetworkController implements Runnable{
 		setStatus("Starting password Sender thread");
 		// Broadcast the ssid and password.
 		String msg = autoGPManager.savedgroup.getNetworkName()+":"+autoGPManager.savedgroup.getPassphrase();
-		String code = Message.APPASSPHRASE;
+		String code = Message.APDETAILS;
 		pwrdSender = new Thread(new APMessageSender(autoGPManager.savedgroup, new Message(code, msg)));
 		pwrdSender.start();
 		
